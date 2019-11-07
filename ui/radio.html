@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link type="text/css"   rel="stylesheet"    href="http://resource/ui/css/radio.css">
+    </head>
+    <body>
+        <div id="app" v-show="focused">
+            <div class="container">
+                <div class="radio">
+                    <div class="station">
+                        <img v-bind:src="radioList[currentRadio].image">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+    </body>
+</html>
+
+
+<script>
+    const app = new Vue({
+        el: '#app',
+        data: {
+            volume: 40,
+            player: new Audio(),
+            beep: null,
+            switching: null,
+            focused: false,
+            currentRadio: 0,
+            radioList: [
+                {
+                    name: 'OFF',
+                    image: 'http://resource/ui/img/off.png'
+                }
+            ]
+        },
+        methods: {
+            randomNumber(min, max) {
+                return Math.floor(Math.random() * (max - min + 1) + min);
+            },
+            play() {
+                this.player.pause()
+
+                if (this.radioList[this.currentRadio].volume) {
+                    this.player.volume = this.radioList[this.currentRadio].volume * 0.01;
+                } else {
+                    this.player.volume = this.volume * 0.01;
+                }
+
+                if (this.currentRadio != 0) {
+                    this.player.src = this.radioList[this.currentRadio].url;
+                    this.player.play();
+                }
+            },
+            mouseScroll(delta) {
+                if (this.focused) {
+                    this.beep = new Audio('http://resource/ui/audio/beep.mp3');
+                    this.beep.volume = 0.1;
+                    this.beep.play();
+
+                    if (this.switching) {
+                        this.switching.pause();
+                        this.switching = null;
+                    }
+
+                    if (delta > 0) {
+                        this.nextStation();
+                    } else {
+                        this.previousStation();
+                    }
+                }
+            },
+            nextStation() {
+                if (this.currentRadio == (this.radioList.length - 1)) {
+                    this.currentRadio = 0;
+                } else {
+                    this.currentRadio++;
+                }
+
+                this.play();
+            },
+            previousStation() {
+                if (this.currentRadio == 0) {
+                    this.currentRadio = (this.radioList.length - 1);
+                } else {
+                    this.currentRadio--;
+                }
+                
+                this.play();
+            },
+            gotoStation(index) {
+                this.currentRadio = index;
+
+                this.focused = true;
+                this.play();
+
+                let timeout = setTimeout(() => {
+                    this.focused = false;
+                }, 2000);
+
+            }
+        },
+        computed: {},
+        watch: {
+            currentRadio() {
+                if ('alt' in window) {
+                    alt.emit('radio:StationChanged', this.currentRadio);
+                }
+            }
+        },
+        mounted() {
+            window.addEventListener("wheel", event => {
+                const delta = Math.sign(event.deltaY);
+                
+                this.mouseScroll(delta);
+            });
+
+            window.addEventListener("keydown", event => {
+                if (event.keyCode === 81) {
+                    this.focused = true;
+                } else {
+                    return;
+                }
+            });
+
+            window.addEventListener("keyup", event => {
+                if (event.keyCode === 81) {
+                    this.focused = false;
+                } else {
+                    return;
+                }
+            });
+
+            this.player.addEventListener('loadstart', () => {
+                this.switching = new Audio(`http://resource/ui/audio/switching${this.randomNumber(1, 6)}.mp3`);
+                this.switching.volume = 0.1;
+                this.switching.play();
+            });
+
+            this.player.addEventListener('playing', () => {
+                this.switching.pause();
+                this.switching = null;
+            });
+
+            if ('alt' in window) {
+                alt.on('switchRadio', (radioStation) => {
+                    this.gotoStation(radioStation);
+                });
+
+                alt.on('addRadioStation', (radio) => {
+                    this.radioList.push(radio);
+                });
+            }
+
+            if ('alt' in window) {
+                setTimeout(() => {
+                    alt.emit('browser:mounted');
+                }, 1000);
+            }
+        },
+    });
+</script>

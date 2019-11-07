@@ -1,0 +1,37 @@
+* {
+    box-sizing: border-box;
+}
+.container {
+    padding: 0 !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container .radio {
+    width: 300px !important;
+    height: 300px !important;
+    padding: 0 !important;
+    background-color: rgba(0, 0, 0, 0.5);
+    float: right;
+    color: #dadada;
+    text-shadow: 0 0 #000000;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
+
+.container .radio .station {
+    width: 250px;
+}
+
+.container .radio .station img {
+    width: 100%;
+}

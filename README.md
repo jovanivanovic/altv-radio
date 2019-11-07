@@ -25,6 +25,10 @@ you will find an array of radio stations.
 }
 ```
 
+### In-game usage
+
+While in a vehicle, scroll the mouse wheel while holding the Q key.
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)

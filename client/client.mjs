@@ -9,9 +9,10 @@ let focused = false;
 let isInVehicle = false;
 let stationsQueue = [];
 
-alt.emitServer('radio:GetRadioStations');
 
 alt.onServer('playerEnteredVehicle', (vehicle, seat) => {
+    alt.emitServer('radio:GetRadioStations');
+
     browser = new alt.WebView('http://resource/ui/radio.html');
     
     pedInSeat = seat;
@@ -23,15 +24,17 @@ alt.onServer('playerEnteredVehicle', (vehicle, seat) => {
 
     browser.on('browser:mounted', () => {
         mounted = true;
-        let currentVehicleRadio = player.vehicle.getSyncedMeta('radioStation') ? player.vehicle.getSyncedMeta('radioStation') : 0;
-        browser.emit('switchRadio', currentVehicleRadio);
-
+        
         if (stationsQueue.length > 0) {
             stationsQueue.forEach((station, index) => {
                 browser.emit('addRadioStation', station);
                 delete stationsQueue[index];
             });
         }
+        
+        let currentVehicleRadio = player.vehicle.getSyncedMeta('radioStation') ? player.vehicle.getSyncedMeta('radioStation') : 0;
+        browser.emit('switchRadio', currentVehicleRadio);
+
     });
 });
 
@@ -40,6 +43,7 @@ alt.onServer('playerLeftVehicle', (vehicle, seat) => {
     browser = undefined;
     pedInSeat = undefined;
     isInVehicle = false;
+    mounted = false;
 });
 
 alt.onServer('radio:AddStation', (station) => {
@@ -48,6 +52,8 @@ alt.onServer('radio:AddStation', (station) => {
     } else {
         stationsQueue.push(station);
     }
+
+    alt.log(JSON.stringify(station));
 })
 
 // TODO: Fix sync with other vehicle occupants

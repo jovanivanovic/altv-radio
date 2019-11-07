@@ -1,7 +1,9 @@
 # alt:V Radio
 
-alt:V Radio replaces the default GTA V vehicle radio with custom online 
+alt:V Radio resource replaces the default GTA V vehicle radio with custom online 
 radio stations.
+
+Preview: [https://youtu.be/OLFx78yJ0nw](https://youtu.be/OLFx78yJ0nw)
 
 ## Installation
 

@@ -9,32 +9,32 @@ let focused = false;
 let isInVehicle = false;
 let stationsQueue = [];
 
-
 alt.onServer('playerEnteredVehicle', (vehicle, seat) => {
     alt.emitServer('radio:GetRadioStations');
 
     browser = new alt.WebView('http://resource/ui/radio.html');
-    
+
     pedInSeat = seat;
     isInVehicle = true;
 
-    browser.on('radio:StationChanged', (radioStation) => {
+    browser.on('radio:StationChanged', radioStation => {
         alt.emitServer('vehicle:RadioChanged', player.vehicle, radioStation);
     });
 
     browser.on('browser:mounted', () => {
         mounted = true;
-        
+
         if (stationsQueue.length > 0) {
             stationsQueue.forEach((station, index) => {
                 browser.emit('addRadioStation', station);
                 delete stationsQueue[index];
             });
         }
-        
-        let currentVehicleRadio = player.vehicle.getSyncedMeta('radioStation') ? player.vehicle.getSyncedMeta('radioStation') : 0;
-        browser.emit('switchRadio', currentVehicleRadio);
 
+        let currentVehicleRadio = player.vehicle.getSyncedMeta('radioStation')
+            ? player.vehicle.getSyncedMeta('radioStation')
+            : 0;
+        browser.emit('switchRadio', currentVehicleRadio);
     });
 });
 
@@ -46,7 +46,7 @@ alt.onServer('playerLeftVehicle', (vehicle, seat) => {
     mounted = false;
 });
 
-alt.onServer('radio:AddStation', (station) => {
+alt.onServer('radio:AddStation', station => {
     if (mounted) {
         browser.emit('addRadioStation', station);
     } else {
@@ -54,7 +54,7 @@ alt.onServer('radio:AddStation', (station) => {
     }
 
     alt.log(JSON.stringify(station));
-})
+});
 
 // TODO: Fix sync with other vehicle occupants
 
@@ -91,18 +91,18 @@ alt.everyTick(() => {
     }
 });
 
-alt.on('keydown', (key) => {
-    if (key == '0x51' && browser) {
+alt.on('keydown', key => {
+    if (key == 81 && browser) {
         const pedInSeat = native.getPedInVehicleSeat(player.vehicle.scriptID, -1);
         if (pedInSeat !== player.scriptID) return;
-        
+
         browser.focus();
         focused = true;
     }
 });
 
-alt.on('keyup', (key) => {
-    if (key == '0x51' && browser) {
+alt.on('keyup', key => {
+    if (key == 81 && browser) {
         const pedInSeat = native.getPedInVehicleSeat(player.vehicle.scriptID, -1);
         if (pedInSeat !== player.scriptID) return;
 

@@ -1,23 +1,22 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link type="text/css"   rel="stylesheet"    href="http://resource/ui/css/radio.css">
+        <link type="text/css" rel="stylesheet" href="http://resource/ui/css/radio.css" />
     </head>
     <body>
         <div id="app" v-show="focused">
             <div class="container">
                 <div class="radio">
                     <div class="station">
-                        <img v-bind:src="radioList[currentRadio].image">
+                        <img v-bind:src="radioList[currentRadio].image" />
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
     </body>
 </html>
-
 
 <script>
     const app = new Vue({
@@ -41,7 +40,15 @@
                 return Math.floor(Math.random() * (max - min + 1) + min);
             },
             play() {
-                this.player.pause()
+                const isPlaying =
+                    this.player.currentTime > 0 &&
+                    !this.player.paused &&
+                    !this.player.ended &&
+                    this.player.readyState > 2;
+
+                if (isPlaying) {
+                    this.player.pause();
+                }
 
                 if (this.radioList[this.currentRadio].volume) {
                     this.player.volume = this.radioList[this.currentRadio].volume * 0.01;
@@ -73,7 +80,7 @@
                 }
             },
             nextStation() {
-                if (this.currentRadio == (this.radioList.length - 1)) {
+                if (this.currentRadio == this.radioList.length - 1) {
                     this.currentRadio = 0;
                 } else {
                     this.currentRadio++;
@@ -83,11 +90,11 @@
             },
             previousStation() {
                 if (this.currentRadio == 0) {
-                    this.currentRadio = (this.radioList.length - 1);
+                    this.currentRadio = this.radioList.length - 1;
                 } else {
                     this.currentRadio--;
                 }
-                
+
                 this.play();
             },
             gotoStation(index) {
@@ -95,11 +102,10 @@
 
                 this.focused = true;
                 this.play();
-
+                
                 let timeout = setTimeout(() => {
                     this.focused = false;
                 }, 2000);
-
             }
         },
         computed: {},
@@ -111,13 +117,13 @@
             }
         },
         mounted() {
-            window.addEventListener("wheel", event => {
+            window.addEventListener('wheel', event => {
                 const delta = Math.sign(event.deltaY);
-                
+
                 this.mouseScroll(delta);
             });
 
-            window.addEventListener("keydown", event => {
+            window.addEventListener('keydown', event => {
                 if (event.keyCode === 81) {
                     this.focused = true;
                 } else {
@@ -125,7 +131,7 @@
                 }
             });
 
-            window.addEventListener("keyup", event => {
+            window.addEventListener('keyup', event => {
                 if (event.keyCode === 81) {
                     this.focused = false;
                 } else {
@@ -145,11 +151,11 @@
             });
 
             if ('alt' in window) {
-                alt.on('switchRadio', (radioStation) => {
+                alt.on('switchRadio', radioStation => {
                     this.gotoStation(radioStation);
                 });
 
-                alt.on('addRadioStation', (radio) => {
+                alt.on('addRadioStation', radio => {
                     this.radioList.push(radio);
                 });
             }
@@ -159,6 +165,6 @@
                     alt.emit('browser:mounted');
                 }, 1000);
             }
-        },
+        }
     });
 </script>

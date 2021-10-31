@@ -23,7 +23,7 @@ you will find an array of radio stations.
     name: 'Name of the radio station',
     url: 'Radio station's stream url',
     image: 'Radio station's logo image',
-    volume: 60 // This is optional, default volume is 40     
+    volume: 60 // This is optional, default volume is 40
 }
 ```
 

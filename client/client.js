@@ -56,20 +56,13 @@ alt.onServer('radio:AddStation', station => {
     alt.log(JSON.stringify(station));
 });
 
-// TODO: Fix sync with other vehicle occupants
+alt.on('syncedMetaChange', (entity, key, value) => {
+    if (entity != player.vehicle || key != 'radioStation' || player.seat == 1) return;
 
-// alt.on('syncedMetaChange', (entity, key, value) => {
-//     if (entity != player.vehicle) return;
-//     const pedInSeat = native.getPedInVehicleSeat(player.vehicle.scriptID, -1);
-//     if (key != 'radioStation') return;
-//     if (pedInSeat == player.scriptID) return;
+    if (browser && mounted)
+        browser.emit('switchRadio', value);
 
-//     let radioStation = value;
-
-//     if (browser && mounted) {
-//         browser.emit('switchRadio', radioStation);
-//     }
-// });
+});
 
 alt.everyTick(() => {
     if (isInVehicle) {
@@ -93,20 +86,25 @@ alt.everyTick(() => {
 
 alt.on('keydown', key => {
     if (key == 81 && browser) {
-        const pedInSeat = native.getPedInVehicleSeat(player.vehicle.scriptID, -1);
+        const pedInSeat = native.getPedInVehicleSeat(player.vehicle.scriptID, -1, false);
         if (pedInSeat !== player.scriptID) return;
 
         browser.focus();
         focused = true;
+        browser.emit('focus');
     }
 });
 
 alt.on('keyup', key => {
     if (key == 81 && browser) {
-        const pedInSeat = native.getPedInVehicleSeat(player.vehicle.scriptID, -1);
+        const pedInSeat = native.getPedInVehicleSeat(player.vehicle.scriptID, -1, false);
         if (pedInSeat !== player.scriptID) return;
 
         browser.unfocus();
         focused = false;
+        setTimeout(() => {
+            if (browser)
+                browser.emit('unfocus');
+        }, 700);
     }
 });

@@ -4,7 +4,7 @@
         <link type="text/css" rel="stylesheet" href="http://resource/ui/css/radio.css" />
     </head>
     <body>
-        <div id="app" v-show="focused">
+        <div id="app" v-show="focused" style="user-select:none">
             <div class="container">
                 <div class="radio">
                     <div class="station">
@@ -14,7 +14,7 @@
             </div>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
     </body>
 </html>
 
@@ -58,7 +58,7 @@
 
                 if (this.currentRadio != 0) {
                     this.player.src = this.radioList[this.currentRadio].url;
-                    this.player.play();
+                    this.player.play().then(_ => {}).catch(error => {})
                 }
             },
             mouseScroll(delta) {
@@ -140,14 +140,18 @@
             });
 
             this.player.addEventListener('loadstart', () => {
-                this.switching = new Audio(`http://resource/ui/audio/switching${this.randomNumber(1, 6)}.mp3`);
-                this.switching.volume = 0.1;
-                this.switching.play();
+                if (this.switching) {
+                    this.switching = new Audio(`http://resource/ui/audio/switching${this.randomNumber(1, 6)}.mp3`);
+                    this.switching.volume = 0.1;
+                    this.switching.play();
+                }
             });
 
             this.player.addEventListener('playing', () => {
-                this.switching.pause();
-                this.switching = null;
+                if (this.switching) {
+                    this.switching.pause();
+                    this.switching = null;
+                }
             });
 
             if ('alt' in window) {
@@ -157,6 +161,14 @@
 
                 alt.on('addRadioStation', radio => {
                     this.radioList.push(radio);
+                });
+
+                alt.on('focus', () => {
+                    this.focused = true
+                });
+
+                alt.on('unfocus', () => {
+                    this.focused = false
                 });
             }
 
